@@ -11,10 +11,17 @@
 #include <sstream>
 
 int
-main()
+main(int argc, char*argv[])
 {
   // create a socket using TCP IP
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+  int pnum = atoi(argv[2]);
+
+  if (pnum <= 1023) {
+      std::cerr << "ERROR: Incorrect port. Port must be greater than 1023\n";
+      exit(1);
+  }
 
   // struct sockaddr_in addr;
   // addr.sin_family = AF_INET;
@@ -28,7 +35,7 @@ main()
 
   struct sockaddr_in serverAddr;
   serverAddr.sin_family = AF_INET;
-  serverAddr.sin_port = htons(40000);     // short, network byte order
+  serverAddr.sin_port = htons(pnum);     // short, network byte order
   serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
   memset(serverAddr.sin_zero, '\0', sizeof(serverAddr.sin_zero));
 
