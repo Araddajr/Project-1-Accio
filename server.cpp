@@ -9,6 +9,9 @@
 
 #include <iostream>
 #include <sstream>
+#include <fstream>
+
+using namespace std;
 
 int
 main(int argc, char *argv[])                         
@@ -18,10 +21,16 @@ main(int argc, char *argv[])
 
   int pnum = atoi(argv[1]);
 
+  if (argc < 3) {
+      std::cerr << "ERROR: Please provide port and directory.\n";
+      exit(1);
+  }
+
   if (pnum <= 1023) {
       std::cerr << "ERROR: Incorrect port. Port must be greater than 1023\n";
       exit(1);
   }
+
 
   // allow others to reuse the address
   int yes = 1;
@@ -63,6 +72,31 @@ main(int argc, char *argv[])
   std::cout << "Accept a connection from: " << ipstr << ":" <<
     ntohs(clientAddr.sin_port) << std::endl;
 
+
+
+  char buf[1024] = { 0 };
+  std::ofstream write("1.file");
+  if (write.is_open())
+  {
+      
+      if (recv(clientSockfd, buf, sizeof(buf), 0) == -1)
+      {
+          std::cerr << "Error on recieve";
+          exit(1);
+      }
+      
+      write << buf << endl; 
+      
+      //if (send(clientSockfd, buf, sizeof(buf), 0) == -1)
+      //{
+          //std::cerr << "Error on send";
+      //}
+  }
+
+  write.close();
+
+
+  /*
   // read/write data from/into the connection
   bool isEnd = false;
   char buf[20] = {0};
@@ -89,6 +123,9 @@ main(int argc, char *argv[])
 
     ss.str("");
   }
+
+  
+  */
 
   close(clientSockfd);
 
