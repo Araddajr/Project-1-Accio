@@ -73,7 +73,7 @@ main(int argc, char *argv[])
     ntohs(clientAddr.sin_port) << std::endl;
 
 
-
+  /*
   char buf[1024] = { 0 };
   std::ofstream write("1.file");
   if (write.is_open())
@@ -94,13 +94,14 @@ main(int argc, char *argv[])
   }
 
   write.close();
+  */
 
-
-  /*
+  
   // read/write data from/into the connection
   bool isEnd = false;
   char buf[20] = {0};
   std::stringstream ss;
+  std::ofstream write("1.file");
 
   while (!isEnd) {
     memset(buf, '\0', sizeof(buf));
@@ -110,8 +111,10 @@ main(int argc, char *argv[])
       return 5;
     }
 
-    ss << buf << std::endl;
-    std::cout << buf << std::endl;
+    //ss << buf << std::endl;
+    //std::cout << buf << std::endl;
+
+    write << buf << endl;
 
     if (send(clientSockfd, buf, 20, 0) == -1) {
       perror("send");
@@ -125,7 +128,7 @@ main(int argc, char *argv[])
   }
 
   
-  */
+  
 
   close(clientSockfd);
 

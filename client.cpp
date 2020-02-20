@@ -85,7 +85,7 @@ main(int argc, char*argv[])
   
   */
 
-  
+  /*
   //std::string file_name = argv[3];
   std::ifstream read (argv[3]);
   //std::cout << read;
@@ -116,24 +116,29 @@ main(int argc, char*argv[])
       }
   }
   read.close();
-
+  */
  
 
-  /*
+  
   
   // send/receive data to/from connection
   bool isEnd = false;
-  std::string input;
+  //std::string input;
   char buf[20] = {0};
   std::stringstream ss;
-  //FILE* f; 
+  std::ifstream read(argv[3]);
+  string line;
 
   while (!isEnd) {
     memset(buf, '\0', sizeof(buf));
 
-    std::cout << "send: ";
-    std::cin >> input;
-    if (send(sockfd, input.c_str(), input.size(), 0) == -1) {
+    //std::cout << "send: ";
+    //std::cin >> input;
+
+
+
+    getline(read, line);
+    if (send(sockfd, line.c_str(), line.size(), 0) == -1) {
       perror("send");
       return 4;
     }
@@ -153,7 +158,7 @@ main(int argc, char*argv[])
     ss.str("");
   }
 
-  */
+  
 
 
   close(sockfd);
