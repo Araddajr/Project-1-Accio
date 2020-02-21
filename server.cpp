@@ -43,7 +43,7 @@ main(int argc, char *argv[])
   struct sockaddr_in addr;
   addr.sin_family = AF_INET;
   addr.sin_port = htons(pnum);     // short, network byte order
-  addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+  addr.sin_addr.s_addr = htonl(INADDR_ANY);
   memset(addr.sin_zero, '\0', sizeof(addr.sin_zero));
 
   if (bind(sockfd, (struct sockaddr*)&addr, sizeof(addr)) == -1) {
@@ -52,7 +52,7 @@ main(int argc, char *argv[])
   }
 
   // set socket to listen status
-  if (listen(sockfd, 1) == -1) {
+  if (listen(sockfd, 15) == -1) {
     perror("listen");
     return 3;
   }
@@ -72,41 +72,17 @@ main(int argc, char *argv[])
   std::cout << "Accept a connection from: " << ipstr << ":" <<
     ntohs(clientAddr.sin_port) << std::endl;
 
-
-  /*
-  char buf[1024] = { 0 };
-  std::ofstream write("1.file");
-  if (write.is_open())
-  {
-      
-      if (recv(clientSockfd, buf, sizeof(buf), 0) == -1)
-      {
-          std::cerr << "Error on recieve";
-          exit(1);
-      }
-      
-      write << buf << endl; 
-      
-      //if (send(clientSockfd, buf, sizeof(buf), 0) == -1)
-      //{
-          //std::cerr << "Error on send";
-      //}
-  }
-
-  write.close();
-  */
-
   
   // read/write data from/into the connection
   bool isEnd = false;
-  char buf[20] = {0};
+  char buf[1024] = {0};
   std::stringstream ss;
-  std::ofstream write("1.file");
+  std::ofstream write_file("1.file", std::ios::binary);
 
   while (!isEnd) {
     memset(buf, '\0', sizeof(buf));
 
-    if (recv(clientSockfd, buf, 20, 0) == -1) {
+    if (recv(clientSockfd, buf, 1024, 0) == -1) {
       perror("recv");
       return 5;
     }
@@ -114,7 +90,9 @@ main(int argc, char *argv[])
     //ss << buf << std::endl;
     //std::cout << buf << std::endl;
 
-    write << buf << endl;
+    //write_file << buf << endl;
+
+    write_file.write(buf, sizeof(buf));
 
     if (send(clientSockfd, buf, 20, 0) == -1) {
       perror("send");

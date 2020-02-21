@@ -17,6 +17,8 @@ int
 main(int argc, char*argv[])
 {
   // create a socket using TCP IP
+  //char* host = gethostbyname(argv[1]);
+
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
   int pnum = atoi(argv[2]);
@@ -60,91 +62,27 @@ main(int argc, char*argv[])
   std::cout << "Set up a connection from: " << ipstr << ":" <<
     ntohs(clientAddr.sin_port) << std::endl;
 
-  /*
-  char buffer[100];
-
-  FILE* f;
-
-  f = fopen("send.txt", "r");
-  
-  while (!feof(f)) {
-
-      fgets(buffer, sizeof(buffer), f);
-
-     // if (fgets(buffer, sizeof(buffer), f) == -1) { //(fscanf(f, "%s %99[^\n]", buffer) == -1) {
-       //   std::cerr << "ERROR on fscanf";
-         // exit(1);
-      //}
-
-      if (write(sockfd, buffer, 100) == -1) {
-          std::cerr << "ERROR on write";
-          exit(1);
-      }
-  }
-  printf("the file was sent successfully\n");
-  
-  */
-
-  /*
-  //std::string file_name = argv[3];
-  std::ifstream read (argv[3]);
-  //std::cout << read;
-  string line; 
-  //char buf[1024] = {0};
-
-  if (read.is_open())
-  {
-      while (!read.eof())
-      {
-          getline(read, line);
-
-         // cout << line << endl;
-
-          
-          //memset(buf, '\0', sizeof(buf));
-          //if (read.getline(buf, sizeof(buf)) != NULL);
-
-          if (send(sockfd, line.c_str(), line.size(), 0) == -1)
-          {
-              std::cerr << "Error on send file";
-          }
-          
-          //if (recv(sockfd, buf, sizeof(buf), 0) == -1)
-          //{
-              //std::cerr << "Error on recv";
-          //}
-      }
-  }
-  read.close();
-  */
- 
-
-  
   
   // send/receive data to/from connection
   bool isEnd = false;
   //std::string input;
-  char buf[20] = {0};
+  char buf[1024] = {0};
   std::stringstream ss;
-  std::ifstream read(argv[3]);
+  std::ifstream read_file(argv[3], std::ios::binary);
   string line;
 
   while (!isEnd) {
     memset(buf, '\0', sizeof(buf));
 
-    //std::cout << "send: ";
-    //std::cin >> input;
+    read_file.read(buf, sizeof(buf));
 
-
-
-    getline(read, line);
-    if (send(sockfd, line.c_str(), line.size(), 0) == -1) {
+    if (send(sockfd, buf, sizeof(buf), 0) == -1) {
       perror("send");
       return 4;
     }
 
 
-    if (recv(sockfd, buf, 20, 0) == -1) {
+    if (recv(sockfd, buf, 1024, 0) == -1) {
       perror("recv");
       return 5;
     }
@@ -152,8 +90,13 @@ main(int argc, char*argv[])
     //std::cout << "echo: ";
     //std::cout << buf << std::endl;
 
-    if (ss.str() == "close\n")
-      break;
+    //if (ss.str() == "close\n")
+     // break;
+
+    if (read_file.gcount() == 0)
+    {
+        break;
+    }
 
     ss.str("");
   }
