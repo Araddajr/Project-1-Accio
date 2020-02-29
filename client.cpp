@@ -23,39 +23,31 @@ Date: 2/21/20
 int
 main(int argc, char* argv[])
 {
+    if (argc < 4) { // check for valid number of arguments
+        std::cerr << "ERROR: Please provide hostname, port, and filename.\n";
+        exit(1);
+    }
 
-    struct hostent* server = gethostbyname(argv[1]);
+    struct hostent* server = gethostbyname(argv[1]); // resolve host from command-line
 
-    if (server == NULL) {
+    if (server == NULL) { // check validity of host
         std::cerr << "ERROR: Incorrect host\n";
         exit(1);
     }
 
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
-    int pnum = atoi(argv[2]);
+    int pnum = atoi(argv[2]); // get port number from command-line
 
-    if (pnum <= 1023) {
+    if (pnum <= 1023) { // check validity of port number
         std::cerr << "ERROR: Incorrect port. Port must be greater than 1023\n";
         exit(1);
     }
 
-    // struct sockaddr_in addr;
-    // addr.sin_family = AF_INET;
-    // addr.sin_port = htons(40001);     // short, network byte order
-    // addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    // memset(addr.sin_zero, '\0', sizeof(addr.sin_zero));
-    // if (bind(sockfd, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
-    //   perror("bind");
-    //   return 1;
-    // }
-
-
-
     struct sockaddr_in serverAddr;
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_port = htons(pnum);     // short, network byte order
-    serverAddr.sin_addr.s_addr = *(long*)(server->h_addr_list[0]);
+    serverAddr.sin_addr.s_addr = *(long*)(server->h_addr_list[0]); // use host from command-line
     memset(serverAddr.sin_zero, '\0', sizeof(serverAddr.sin_zero));
 
     // connect to the server
@@ -76,10 +68,9 @@ main(int argc, char* argv[])
     std::cout << "Set up a connection from: " << ipstr << ":" <<
         ntohs(clientAddr.sin_port) << std::endl;
 
-
   // send/receive data to/from connection
   bool isEnd = false;
-  char buf[1024] = {0};
+  char buf[1024] = {0}; // create buffer
   std::ifstream read_file(argv[3], std::ios::binary); //read file argument from command-line in binary format
 
   while (!isEnd) {
@@ -92,11 +83,9 @@ main(int argc, char* argv[])
       return 4;
     }
 
-    if (read_file.eof()) // reached end of the file, break out of loop
-    {
+    if (read_file.eof()) { // reached end of the file, break out of loop   
         break;
     }
-
   }
 
   close(sockfd);

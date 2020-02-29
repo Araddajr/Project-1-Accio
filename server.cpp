@@ -18,7 +18,6 @@ Date: 2/21/20
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <sys/stat.h>
 
 #define MAX_BYTES 1024
 
@@ -27,17 +26,18 @@ bool file_created(const std::string& file); //function declaration
 int
 main(int argc, char* argv[])
 {
-    // create a socket using TCP IP
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
-    int pnum = atoi(argv[1]);
-
-    if (argc < 3) {
+    if (argc < 3) { // check for valid number of arguments
         std::cerr << "ERROR: Please provide port and directory.\n";
         exit(1);
     }
 
-    if (pnum <= 1023) {
+    // create a socket using TCP IP
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+    int pnum = atoi(argv[1]); //get port number from command-line
+
+    if (pnum <= 1023) { // check validity of port number
         std::cerr << "ERROR: Incorrect port. Port must be greater than 1023\n";
         exit(1);
     }
@@ -54,7 +54,7 @@ main(int argc, char* argv[])
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(pnum);     // short, network byte order
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY); // use any interface
     memset(addr.sin_zero, '\0', sizeof(addr.sin_zero));
 
     if (bind(sockfd, (struct sockaddr*) & addr, sizeof(addr)) == -1) {
@@ -103,25 +103,23 @@ main(int argc, char* argv[])
         }
     }
 
-    // read/write data from/into the connection
-    
+    // read/write data from/into the connection  
     std::ofstream write_file(path.c_str() + remove, std::ios::binary);
-    int filesize = write_file.end;
-    char buf[MAX_BYTES] = { 0 };
-    int bytes;
+    int filesize = write_file.end; //get size of file
+    char buf[MAX_BYTES] = { 0 }; // create buffer to store data
+    int bytes; //store number of bytes
 
-    while (filesize)
-    {
-       
-        bytes = recv(clientSockfd, buf, MAX_BYTES, 0);
+    while (filesize) { // while filesize is greater than 0
+    
+        bytes = recv(clientSockfd, buf, MAX_BYTES, 0); //recieve data and store into buffer
 
-        if (bytes < 0) {
+        if (bytes < 0) { // if no data print error
             perror("recv");
         }
         
-        write_file.write(buf, bytes);
+        write_file.write(buf, bytes); //write data from buffer into file
        
-        filesize -= bytes;
+        filesize -= bytes; //decrease
     }
 
   close(clientSockfd);
@@ -133,7 +131,7 @@ bool file_created(const std::string& file) // function used to check if file exi
 {
     struct stat check;
 
-    if (stat(file.c_str() + 1, &check) != -1) {
+    if (stat(file.c_str() + 1, &check) != -1) { //used to check and increment file name
         return true;
     }
     return false;
